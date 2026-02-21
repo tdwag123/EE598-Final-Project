@@ -1,2 +1,2 @@
 # EE598-Final-Project
-My final project for EE 598
+This project explores algorithmic Diophantine methods inside Lean 4, beginning with a tactic that solves equations of the form x^2 + y^2 = n using the classical sum‑of‑two‑squares theorem. The goal is to implement a fully constructive pipeline: factorization of n, detection of solvability via mod‑4 constraints, Gaussian‑integer GCD to obtain prime representations, and combination of representations using the sum‑of‑two‑squares identity. The project will grow toward a general framework for automating small but nontrivial Diophantine families in Lean.
