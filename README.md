@@ -11,7 +11,7 @@ The implementation follows Fermat's theorem: a positive integer $n$ is a sum of 
 3. represents each prime power $p^e$ as a sum of two squares using Gaussian-integer GCD (for $p \equiv 1 \pmod 4$) or elementary formulas (for $p = 2$ and $p \equiv 3 \pmod 4$),
 4. combines representations with the Brahmagupta–Fibonacci identity.
 
-Correctness is verified in Lean: a **soundness theorem** states that whenever the algorithm returns a pair $(x, y)$, the equation $x^2 + y^2 = n$ holds; a **completeness theorem** ties the solvability check to Mathlib's `padicValNat` criterion.
+Partial proof infrastructure is developed in `Proof.lean`, though several key lemmas remain as `sorry` and one Mathlib result is axiomatized due to a namespace conflict with our custom `GaussianInt` structure.
 
 ---
 
@@ -69,48 +69,21 @@ EE598_Project/EE598Project/
 | Name | Description |
 |------|-------------|
 | `sqPairNorm p` | Norm of a `SqPair`: $p.1^2 + p.2^2 : \mathbb{Z}$. Mirrors `GaussianInt.norm` for the proof side. |
-
----
-
-## Main Theorems
-
-| Name | Statement | Status |
-|------|-----------|--------|
-| `combine_norm` | `sqPairNorm (combine (a,b) (c,d)) = sqPairNorm (a,b) * sqPairNorm (c,d)` — the Brahmagupta–Fibonacci identity. | Proved |
-| `foldl_combine_norm` | The norm of a left-fold by `combine` equals the product of the individual norms: `sqPairNorm (l.foldl combine acc) = sqPairNorm acc * (l.map sqPairNorm).prod`. | Proved |
-| `powerOfTwo_norm` | `sqPairNorm (powerOfTwo e) = 2 ^ e` for all `e : ℕ`. | Proved (by induction) |
-| `powerOfThreeMod4_norm` | `sqPairNorm (powerOfThreeMod4 p e) = p ^ e` whenever `e % 2 = 0`. | Proved |
-| `powerOfOneMod4_norm` | `sqPairNorm (powerOfOneMod4 p e) = p ^ e` for prime $p \equiv 1 \pmod 4$. | `sorry` — depends on GCD correctness |
-| `reprPrimePower_norm` | `sqPairNorm (reprPrimePower p e) = p ^ e` for any prime $p$ and exponent $e$. | `sorry` — awaits `powerOfOneMod4_norm` |
-| `primeFactorization_prod` | The product $\prod_{(p,e)} p^e$ over `primeFactorization n` equals $n$ in $\mathbb{Z}$. | `sorry` — requires trial-division correctness |
-| `findSumOfTwoSquares_sound` | **Soundness.** If `findSumOfTwoSquares n = some (x, y)`, then $x \cdot x + y \cdot y = n$. | **Proved** (modulo the three `sorry`s above) |
-| `countOccurrences_eq_count` | `countOccurrences p l = l.count p` — bridging the custom counter to Lean's `List.count`. | Proved |
-| `mem_sortedDedup_iff` | `p ∈ sortedDedup l ↔ p ∈ l` — membership is preserved by deduplication. | Proved |
-| `isSolvable_iff_padicVal` | `isSolvable n = true ↔ ∀ q prime, q % 4 = 3 → Even (padicValNat q n)`. | `sorry` — requires `factorsList` ↔ `padicValNat` |
-| `findSumOfTwoSquares_complete` | **Completeness.** `isSolvable n = true ↔ ∃ x y : ℤ, x*x + y*y = n`. | Proved (conditional on `isSolvable_iff_padicVal` and the Mathlib axiom) |
-
-> **Note on axioms.** The Mathlib theorem `Nat.Prime.sq_add_sq` (characterization via `padicValNat`) is axiomatized as `Nat.eq_sq_add_sq_iff'` because importing `Mathlib.NumberTheory.Zsqrtd.GaussianInt` would conflict with our custom `GaussianInt` structure.
+| `combine_norm` | Brahmagupta–Fibonacci identity: `sqPairNorm (combine (a,b) (c,d)) = sqPairNorm (a,b) * sqPairNorm (c,d)`. Proved by `ring`. |
+| `foldl_combine_norm` | Norm of a fold by `combine` equals the product of individual norms. Proved by list induction. |
+| `powerOfTwo_norm` | `sqPairNorm (powerOfTwo e) = 2 ^ e`. Proved by induction. |
+| `powerOfThreeMod4_norm` | `sqPairNorm (powerOfThreeMod4 p e) = p ^ e` when `e % 2 = 0`. Proved. |
+| `countOccurrences_eq_count` | `countOccurrences p l = l.count p`. Proved. |
+| `mem_sortedDedup_iff` | `p ∈ sortedDedup l ↔ p ∈ l`. Proved. |
 
 ---
 
 ## References
 
-1. **Fermat's theorem on sums of two squares** — Any prime $p \equiv 1 \pmod 4$ (and $p = 2$) is a sum of two squares; a positive integer is a sum of two squares iff all prime factors $p \equiv 3 \pmod 4$ appear with even exponent.
-   *C.-F. Gauss, Disquisitiones Arithmeticae, 1801.*
+1. **Lean 4 and Mathlib** — The `Mathlib.NumberTheory.SumTwoSquares` module contains a machine-checked proof of Fermat's theorem. Our project uses the `padicValNat` characterization from that module as an axiom.
+   *The Mathlib Community, Mathlib4, https://github.com/leanprover-community/mathlib4.
 
-2. **Brahmagupta–Fibonacci identity** — $(a^2+b^2)(c^2+d^2) = (ac-bd)^2 + (ad+bc)^2$.
-   *Brahmagupta, Brahmasphutasiddhanta, 628 CE; Fibonacci, Liber Quadratorum, 1225.*
-
-3. **Gaussian integers and Euclidean domains** — $\mathbb{Z}[i]$ is a Euclidean domain with norm $N(a+bi) = a^2+b^2$; the GCD algorithm terminates because the norm strictly decreases.
-   *I. Niven, H. S. Zuckerman, H. L. Montgomery, An Introduction to the Theory of Numbers, 5th ed., Wiley, 1991.*
-
-4. **Square roots of $-1$ modulo $p$** — For prime $p \equiv 1 \pmod 4$, any quadratic non-residue $a$ satisfies $a^{(p-1)/4} \equiv \pm i \pmod p$.
-   *H. Cohen, A Course in Computational Algebraic Number Theory, Springer, 1993.*
-
-5. **Lean 4 and Mathlib** — The `Mathlib.NumberTheory.SumTwoSquares` module contains a machine-checked proof of Fermat's theorem. Our project uses the `padicValNat` characterization from that module as an axiom.
-   *The Mathlib Community, Mathlib4, https://leanprover-community.github.io/mathlib4_docs/.*
-
-6. **Lean 4 language reference** — *L. de Moura, S. Ullrich, The Lean 4 Theorem Prover and Programming Language, CADE 2021.*
+2. **Lean 4 language reference** — *L. de Moura, S. Ullrich, The Lean 4 Theorem Prover and Programming Language, CADE 2021.*
 
 ---
 
