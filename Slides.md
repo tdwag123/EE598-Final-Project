@@ -10,7 +10,7 @@ In this project we implement and partially verify a **constructive algorithm** f
 
 ## The Algorithm
 
-**Fermat's theorem:** `n` is a sum of two squares iff every prime `p ≡ 3 (mod 4)` appears to an even power in `n`.  For example: `65 = 5 × 13`, both `≡ 1 (mod 4)`, so `65 = 4² + 7²`.
+**Fermat's theorem:** `n` is a sum of two squares iff every prime `p ≡ 3 (mod 4)` appears to an even power in the factorization of `n`.  For example: `45 = 3² × 5` — `3 ≡ 3 (mod 4)` but appears to an **even** power, so solvable → `45 = 3² + 6²`.  Compare `15 = 3¹ × 5` — `3` to an **odd** power → not solvable.
 
 Each prime power `pᵉ` is represented separately, then combined:
 
