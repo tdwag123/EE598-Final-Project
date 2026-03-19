@@ -5,7 +5,8 @@ open GaussianInt
 
 /-
 I tried what you suggested, write the theorem statements and let Claude go.
-No success as of yet. It wants to assume nontrivial things as seen below.
+Maybe with some more time claude could have solved it, but it is making some
+silly assumptions right now.
 -/
 
 

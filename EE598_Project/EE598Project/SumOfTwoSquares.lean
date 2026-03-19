@@ -71,6 +71,7 @@ def findQuadraticNonResidue (p : Nat) : Nat :=
       if modPow a ((p - 1) / 2) p == p - 1 then a
       else go (a + 1) fuel'
   go 2 (p - 2)
+-- sqrtMinusOneMod computes sqrt(-1) mod p
 def sqrtMinusOneMod (p : Nat) : Nat :=
   let a := findQuadraticNonResidue p
   modPow a ((p - 1) / 4) p
@@ -99,11 +100,13 @@ def combine (x y : SqPair) : SqPair :=
   let (a, b) := x
   let (c, d) := y
   (a * c - b * d,  a * d + b * c)
+-- primeFactorization returns (prime, exponent) pairs for n
 def primeFactorization (n : Nat) : List (Nat × Nat) :=
   let flat   := factorsList n
   let primes := sortedDedup flat
   primes.map fun p => (p, countOccurrences p flat)
 
+-- reprPrimePower computes (a, b) for p^e
 def reprPrimePower (p e : Nat) : SqPair :=
   if p == 2 then
     powerOfTwo e

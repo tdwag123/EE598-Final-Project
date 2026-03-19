@@ -21,7 +21,7 @@ Partial proof infrastructure is developed in `Proof.lean`, though several key le
 EE598_Project/EE598Project/
 ├── GaussianInt.lean       -- ℤ[i] arithmetic (ring operations, GCD, fast power)
 ├── SumOfTwoSquares.lean   -- main algorithm (factorization → representation → combination)
-├── Proof.lean             -- formal correctness proofs
+├── Proof.lean             -- theorem statements + partial Claude-assisted proof attempts
 └── Basic.lean             -- top-level re-export
 ```
 
@@ -66,6 +66,8 @@ EE598_Project/EE598Project/
 
 ### `Proof.lean`
 
+This file currently contains theorem statements plus partial Claude-assisted proof attempts. The workflow of writing theorem statements first and then letting Claude search for proofs produced useful scaffolding, but several generated attempts still make unjustified assumptions, so a number of goals remain unfinished (`sorry`).
+
 | Name | Description |
 |------|-------------|
 | `sqPairNorm p` | Norm of a `SqPair`: $p.1^2 + p.2^2 : \mathbb{Z}$. Mirrors `GaussianInt.norm` for the proof side. |
@@ -96,11 +98,9 @@ EE598_Project/EE598Project/
 
 - **Remove the axiom.** Replace the axiomatized `Nat.eq_sq_add_sq_iff'` with a direct import or re-statement that avoids the `Zsqrtd.GaussianInt` namespace clash, e.g., by renaming our structure.
 
-- **Formal `GaussianInt` ring instance.** Register `GaussianInt` as a `CommRing` (and ultimately a `EuclideanDomain`) in Mathlib's type-class hierarchy, enabling full algebraic reasoning.
-
 - **Certified `factorsList`.** Prove that `factorsList n` returns exactly the prime factors of $n$ with the correct multiplicities, making all downstream arithmetic proofs unconditional.
 
-- **Lean tactic.** Expose `findSumOfTwoSquares` as a decision procedure inside a `decide`-style tactic, so goals of the form `∃ x y, x^2 + y^2 = n` can be closed automatically for concrete $n$.
+- **Lean tactic.** Expose `findSumOfTwoSquares` as a decision procedure inside a `decide`-style tactic, so goals of the form `∃ x y, x^2 + y^2 = n` can be closed automatically for concrete $n$. (Only do if there is some useful reason to do this, I cann't come up with one as of now).
 
 - **Generalization.** Extend the framework to related Diophantine families, such as sums of three or four squares (Legendre/Lagrange theorems), or norms in other quadratic rings $\mathbb{Z}[\sqrt{-d}]$.
 

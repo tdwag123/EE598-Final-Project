@@ -13,6 +13,7 @@ namespace GaussianInt
 instance : Zero GaussianInt := ⟨⟨0, 0⟩⟩
 instance : One  GaussianInt := ⟨⟨1, 0⟩⟩
 
+/-- Embed an integer into `ℤ[i]`. -/
 def ofInt (n : Int) : GaussianInt := ⟨n, 0⟩
 
 instance : ToString GaussianInt where
@@ -31,13 +32,14 @@ instance : Mul GaussianInt := ⟨fun z w =>
   ⟨z.re * w.re - z.im * w.im,
    z.re * w.im + z.im * w.re⟩⟩
 
+/-- Complex conjugate in `ℤ[i]`. -/
 def conj (z : GaussianInt) : GaussianInt := ⟨z.re, -z.im⟩
+/-- Gaussian norm `a² + b²`. -/
 def norm (z : GaussianInt) : Int := z.re * z.re + z.im * z.im
+/-- Gaussian norm as a natural number. -/
 def normNat (z : GaussianInt) : Nat := (norm z).toNat
 
-/-- Round an integer ratio `a/b` to the nearest integer.
-    Uses the formula `⌊(2a + b) / (2b)⌋` (floor division), which rounds half-up.
-    Requires `b > 0`.  Guarantees `|a/b − round(a,b)| ≤ 1/2`. -/
+/-- Round `a/b` to the nearest integer (half-up). -/
 def roundNearest (a b : Int) : Int :=
   Int.ediv (2 * a + b) (2 * b)
 
@@ -47,17 +49,17 @@ def gaussianDiv (a b : GaussianInt) : GaussianInt :=
   let den := b.norm
   ⟨roundNearest num.re den, roundNearest num.im den⟩
 
-/-- Remainder of dividing a by b in ℤ[i]. -/
+/-- Euclidean remainder in `ℤ[i]`. -/
 def gaussianMod (a b : GaussianInt) : GaussianInt :=
   let q := gaussianDiv a b
   a - q * b
 
-/-- Euclidean GCD in ℤ[i]. Terminates because norm strictly decreases. -/
+/-- Euclidean GCD in `ℤ[i]`. -/
 partial def gcd (a b : GaussianInt) : GaussianInt :=
   if b == 0 then a
   else gcd b (gaussianMod a b)
 
-/-- Fast binary exponentiation: computes z^n in O(log n) multiplications. -/
+/-- Tail-recursive helper for binary exponentiation. -/
 private def fastPowAux (z : GaussianInt) (n : Nat) (acc : GaussianInt) : GaussianInt :=
   if hn : n = 0 then acc
   else
@@ -66,6 +68,7 @@ private def fastPowAux (z : GaussianInt) (n : Nat) (acc : GaussianInt) : Gaussia
 termination_by n
 decreasing_by exact Nat.div_lt_self (by omega) (by norm_num)
 
+/-- Compute `z^n` in `ℤ[i]`. -/
 def fastPow (z : GaussianInt) (n : Nat) : GaussianInt :=
   fastPowAux z n 1
 
